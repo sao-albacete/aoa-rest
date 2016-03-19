@@ -24,4 +24,15 @@ class CitaService extends AbstractService implements CitaServiceInterface
     {
         return $this->em->getRepository(Cita::class)->findAll();
     }
+
+    /**
+     * Find one cita by id
+     *
+     * @param $id
+     * @return Cita
+     */
+    public function findOneById($id)
+    {
+        return $this->em->getRepository(Cita::class)->find($id);
+    }
 }

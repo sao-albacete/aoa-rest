@@ -18,5 +18,6 @@ return [
         'entitiesPaths' => [
             __DIR__ . '/../src/Entity'
         ],
+        'charset'  => 'utf8'
     ]
 ];

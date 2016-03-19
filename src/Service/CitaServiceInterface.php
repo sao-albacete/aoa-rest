@@ -16,4 +16,12 @@ interface CitaServiceInterface
      * @return Cita[]
      */
     public function findAll();
+
+    /**
+     * Find one cita by id
+     *
+     * @param $id
+     * @return Cita
+     */
+    public function findOneById($id);
 }
