@@ -11,4 +11,4 @@ use Aoa\Controller\FamiliaController;
 /**
  * Version 1
  */
-$app->get('/v1/familias', FamiliaController::class . ':getAll')->setName('familias-all');
+$app->get('/v1/familias[/{order}]', FamiliaController::class . ':getAll')->setName('familias-all');

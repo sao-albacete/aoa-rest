@@ -9,7 +9,6 @@ namespace Aoa\Service;
 
 use Aoa\Entity\Familia;
 
-
 /**
  * Class FamiliaService
  * @author Wonnova
@@ -20,7 +19,8 @@ interface FamiliaServiceInterface
     /**
      * Find all ocurrences of Familia
      *
+     * @param null|array $orderBy
      * @return Familia[]
      */
-    public function findAll();
+    public function findAll(array $orderBy = null);
 }

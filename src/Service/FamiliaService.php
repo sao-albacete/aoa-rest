@@ -6,6 +6,7 @@
  * Time: 20:32
  */
 namespace Aoa\Service;
+
 use Aoa\Entity\Familia;
 
 /**
@@ -18,10 +19,15 @@ class FamiliaService extends AbstractService implements FamiliaServiceInterface
     /**
      * Find all ocurrences of Familia
      *
+     * @param null|array $orderBy
      * @return Familia[]
      */
-    public function findAll()
+    public function findAll(array $orderBy = null)
     {
-        return $this->em->getRepository(Familia::class)->findAll();
+        if (empty($orderBy)) {
+            return $this->em->getRepository(Familia::class)->findAll();
+        } else {
+            return $this->em->getRepository(Familia::class)->findBy([], $orderBy);
+        }
     }
 }

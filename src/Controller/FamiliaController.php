@@ -53,7 +53,12 @@ class FamiliaController extends AbstractController
 
         try {
 
-            $familias = $this->familiaService->findAll();
+            $order = [];
+            if (isset($args['order'])) {
+                $order = [$args['order'] => 'ASC'];
+            }
+
+            $familias = $this->familiaService->findAll($order);
 
             $resource = new Collection($familias, new FamiliaTransformer());
 
