@@ -8,6 +8,7 @@
 namespace Aoa\Core\Doctrine\Factory;
 
 use Aoa\Core\Doctrine\Extension\TablePrefix;
+use Aoa\Core\Doctrine\Repository\EntityRepository;
 use Aoa\Core\Dotenv\EnvironmentVariables;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
@@ -45,6 +46,7 @@ class EntityManagerFactory implements FactoryInterface
         $isDevMode = true;
         $entitiesPaths = $dbParams['entitiesPaths'];
         $config = Setup::createAnnotationMetadataConfiguration($entitiesPaths, $isDevMode);
+        $config->setDefaultRepositoryClassName(EntityRepository::class);
 
         // Set events
         $evm = new \Doctrine\Common\EventManager;
