@@ -7,5 +7,8 @@
  */
 use Aoa\Controller\CitaController;
 
-$app->get('/citas', CitaController::class . ':getAll')->setName('citas-all');
-$app->get('/citas/{id}', CitaController::class . ':getById')->setName('cita-by-id');
+/**
+ * Version 1
+ */
+$app->get('/v1/citas', CitaController::class . ':getAll')->setName('citas-all');
+$app->get('/v1/citas/{id}', CitaController::class . ':getById')->setName('cita-by-id');

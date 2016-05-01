@@ -8,5 +8,7 @@
 
 use Aoa\Controller\FamiliaController;
 
-$app->get('/familias', FamiliaController::class . ':getAll')->setName('familias-all');
-
+/**
+ * Version 1
+ */
+$app->get('/v1/familias', FamiliaController::class . ':getAll')->setName('familias-all');
