@@ -53,6 +53,7 @@ class FamiliaController extends AbstractController
 
         try {
 
+            // Get params
             $order = [];
             if (isset($args['order'])) {
                 $order = [$args['order'] => 'ASC'];

@@ -54,7 +54,12 @@ class CitaController extends AbstractController
 
         try {
 
-            $citas = $this->citaService->findAll();
+            // Get params
+            $order = [];
+            if (isset($args['order'])) {
+                $order = [$args['order'] => 'ASC'];
+            }
+            $citas = $this->citaService->findAll($order);
 
             $resource = new Collection($citas, new CitaTransformer());
 

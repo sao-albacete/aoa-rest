@@ -13,9 +13,10 @@ interface CitaServiceInterface
     /**
      * Find all ocurrences of Cita
      *
+     * @param null|array $order
      * @return Cita[]
      */
-    public function findAll();
+    public function findAll(array $order = null);
 
     /**
      * Find one cita by id
