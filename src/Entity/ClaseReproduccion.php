@@ -18,6 +18,11 @@ use Doctrine\ORM\Mapping\Table;
 class ClaseReproduccion
 {
     /**
+     * Constants
+     */
+    const DEFAULT_CODE = 'NA';
+
+    /**
      * @var integer
      *
      * @Column(name="id", type="integer")

@@ -18,6 +18,11 @@ use Doctrine\ORM\Mapping\Table;
 class Fuente
 {
     /**
+     * Constants
+     */
+    const DEFAULT_CODE = 'OP';
+
+    /**
      * @var integer
      *
      * @Column(name="id", type="integer")

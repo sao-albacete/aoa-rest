@@ -22,6 +22,11 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 class Estudio
 {
     /**
+     * Constants
+     */
+    const DEFAULT_CODE = 'CIT';
+
+    /**
      * @var integer
      *
      * @Column(name="id", type="integer")
