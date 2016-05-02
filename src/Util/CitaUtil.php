@@ -1,7 +1,9 @@
 <?php
 namespace Aoa\Util;
+use Aoa\Date\DatePeriod;
 use Aoa\Entity\Cita;
 use Aoa\Entity\Especie;
+use Cocur\Slugify\Slugify;
 
 /**
  * Class CitaUtil
@@ -27,57 +29,46 @@ class CitaUtil
         if ($indRareza == 1) {
             $recordImportance = 1;
         }
-
         // r - Rareza local
         if ($indRareza == 2) {
             $recordImportance = 2;
         }
-
         // EP - Especie protegida EN o VU
         if ($claseCriterio == 2) {
             $recordImportance = 3;
         }
-
         // E - Especie muy escasa
         if ($claseCriterio == 3 || $claseCriterio == 4) {
             $recordImportance = 4;
         }
-
         // R? - Rareza nacional con cría probable
         if ($indRareza == 1 && ($claseReproduccion >= 2 && $claseReproduccion <= 5)) {
             $recordImportance = 5;
         }
-
         // r? - Rareza local con cría probable
         if ($indRareza == 2 && ($claseReproduccion >= 2 && $claseReproduccion <= 5)) {
             $recordImportance = 6;
         }
-
         // EP? - Esp. Protegida con cría probable
         if ($claseCriterio == 2 && ($claseReproduccion >= 2 && $claseReproduccion <= 5)) {
             $recordImportance = 7;
         }
-
         // E? - Especie escasa con cría probable
         if (($claseCriterio == 3 || $claseCriterio == 4) && ($claseReproduccion >= 2 && $claseReproduccion <= 5)) {
             $recordImportance = 8;
         }
-
         // R¡ - Rareza nacional con cría segura
         if ($indRareza == 1 && ($claseReproduccion >= 6 && $claseReproduccion <= 10)) {
             $recordImportance = 9;
         }
-
         // r¡ - Rareza local con cría segura
         if ($indRareza == 2 && ($claseReproduccion >= 6 && $claseReproduccion <= 10)) {
             $recordImportance = 10;
         }
-
         // EP¡ - Esp. Protegida con cría segura
         if ($claseCriterio == 2 && ($claseReproduccion >= 6 && $claseReproduccion <= 10)) {
             $recordImportance = 11;
         }
-
         // E¡ - Especie escasa con cría segura
         if (($claseCriterio == 3 || $claseCriterio == 4) && ($claseReproduccion >= 6 && $claseReproduccion <= 10)) {
             $recordImportance = 12;
@@ -96,180 +87,152 @@ class CitaUtil
      */
     public static function calcularCriterioSeleccion(Cita $cita, Especie $especie, $numeroCitasPorLugar)
     {
-        $selectionCriteria = 21;
-
-        $criteriaClassification = $especie->getClasificacionCriterioEsp();
-        $reproductionClassification = $cita->getClaseReproduccion();
+        // Species data
+        $critClassif = $especie->getClasificacionCriterioEsp()->getCodigo();
+        // Record data
+        $reprodClassif = $cita->getClaseReproduccion()->getCodigo();
         $amount = $cita->getCantidad();
-        $observations = $cita->getObservaciones();
+        $observations = (new Slugify())->slugify($cita->getObservaciones(), ' ');
+        $indHabitatAtipico = $cita->getIndHabitatRaro();
+        $indComportamientoCurioso = $cita->getIndComportamiento();
+        $indHerido = $cita->getIndHerido();
+        $date = $cita->getFechaAlta();
+        $year = $date->format('Y');
 
-        $indHabitatAtipico = 0;
-        if (isset($cita['indHabitatRaro'])) {
-            $indHabitatAtipico = $cita['indHabitatRaro'];
-        }
-
-        $indComportamientoCurioso = 0;
-        if (isset($cita['indComportamiento'])) {
-            $indComportamientoCurioso = $cita['indComportamiento'];
-        }
-
-        $indHerido = 0;
-        if (isset($cita['indHerido'])) {
-            $indHerido = $cita['indHerido'];
-        }
-
-        $fechaArray = explode("-", $cita['fechaAlta']);
-        $mes = intval($fechaArray[1]);
-        $dia = intval($fechaArray[2]);
-
-        /*
-         * Citas de presencia
-         * De rarezas, escasas o poco conocidas en la provincia
-         */
-        // A1
-        if ($criteriaClassification == 1 || $criteriaClassification == 3 || $criteriaClassification == 4) {
-            $selectionCriteria = 1;
-        }
-
-        /*
-         * Citas de conservación
-         * Todas las citas de especies incluidas en el Catálogo Regional de Especies Amenazadas, en las categorías de "En Peligro" y "Vulnerables".
-         */
-        // G1
-        elseif ($criteriaClassification == 2) {
-            $selectionCriteria = 19;
-        }
+        $cria = ['MC', 'PP', 'PN', 'CN', 'DD', 'NV', 'JO', 'CB', 'NI'];
 
         /*
          * Citas de reproducción
          * Datos de cría posible, probable y confirmada de especies que no sean abundantes.
          */
-        // E1
-        elseif (($criteriaClassification == 3 || $criteriaClassification == 4 || $criteriaClassification == 5) && ($reproductionClassification >= 2 && $reproductionClassification <= 10)) {
-            $selectionCriteria = 14;
+        if (in_array($critClassif, [12, 13, 14]) && in_array($reprodClassif, $cria)) {
+            return 'E1';
         }
-
+        /*
+         * Citas de presencia
+         * De rarezas, escasas o poco conocidas en la provincia
+         */
+        if (in_array($critClassif, [10, 12, 13])) {
+            return 'A1';
+        }
+        /*
+         * Citas de conservación
+         * Todas las citas de especies incluidas en el Catálogo Regional de Especies Amenazadas,
+         * en las categorías de "En Peligro" y "Vulnerables".
+         */
+        if (in_array($critClassif, [11])) {
+            return 'G1';
+        }
         /*
          * Citas de abundancia
          * De especies escasas en la provincia, zona, biotopo, etc.
          */
-        // D3
-        elseif ($criteriaClassification == 9 && $amount > 4) {
-            $selectionCriteria = 13;
+        if (in_array($critClassif, [30]) && $amount > 4) {
+            return 'D3';
         }
-
         /*
          * Citas de fenología
          * De aves en épocas anormales para la especie.
          */
-        // C1
-        elseif ((($criteriaClassification == 6 ) && ((($mes == 12) || ($mes == 1) || ($mes == 2) || ($mes == 11 && $dia >= 15) || ($mes == 3 && $dia == 1)) || (($mes == 6) || ($mes == 5 && $dia >= 15) || ($mes == 7 && $dia <= 15))))
-            || (($criteriaClassification == 7 ) && (($mes == 12) || ($mes == 1) || ($mes == 2) || ($mes == 11 && $dia >= 15) || ($mes == 3 && $dia == 1)))
-            || (($criteriaClassification == 8 ) && (($mes >= 3 && $mes <= 9) || ($mes == 10 && $dia <= 15)))) {
-            $selectionCriteria = 5;
+        if (in_array($critClassif, [20, 21]) && (
+                (new DatePeriod(15, 11, 31, 12, $year))->inPeriod($date) ||
+                (new DatePeriod(1, 1, 14, 2, $year))->inPeriod($date)
+            ) || in_array($critClassif, [20]) && (
+                (new DatePeriod(15, 5, 14, 7, $year))->inPeriod($date)
+            ) || in_array($critClassif, [22]) && (
+                (new DatePeriod(1, 3, 14, 10, $year))->inPeriod($date)
+            )) {
+            return 'C1';
         }
-
         /*
          * Citas de fenología
-         * Primeras observations en especies en paso migratorio prenupcial (primera observación prenupcial) o en paso posnupcial (primera observación posnupcial).
+         * Primeras observations en especies en paso migratorio prenupcial (primera observación prenupcial) o
+         * en paso posnupcial (primera observación posnupcial).
          */
-        // C2
-        elseif (($criteriaClassification == 6) && (($mes == 2 && $dia >= 15) || ($mes == 3 && $dia <= 15) || ($mes == 8) || ($mes == 7 && $dia >= 15) || ($mes == 9 && $dia == 1))) {
-            $selectionCriteria = 6;
+        if (in_array($critClassif, [20]) && (
+                (new DatePeriod(15, 2, 15, 3, $year))->inPeriod($date) ||
+                (new DatePeriod(15, 7, 1, 9, $year))->inPeriod($date)
+            )) {
+            return 'C2';
         }
-
         /*
          * Citas de fenología
-         * Primeras observations de especies estivales. Es preciso poner cuidado en distinguir estas aves nativas de otros individuos de la misma especie que pueden pasar por la localidad de observación pero no quedarse a criar en ella.En caso de duda se anota como primera observación.
+         * Primeras observations de especies estivales. Es preciso poner cuidado en distinguir estas aves nativas de
+         * otros individuos de la misma especie que pueden pasar por la localidad de observación pero no quedarse a
+         * criar en ella.En caso de duda se anota como primera observación.
          */
-        // C3
-        elseif (($criteriaClassification == 7) && (($mes == 2 && $dia >= 15) || ($mes == 3 && $dia <= 15))) {
-            $selectionCriteria = 7;
+        if (in_array($critClassif, [21]) &&  (new DatePeriod(15, 2, 15, 3, $year))->inPeriod($date)) {
+            return 'C3';
         }
-
         /*
          * Citas de fenología
          * Primeros invernantes vistos en una localidad determinada.
          */
-        // C4
-        elseif (($criteriaClassification == 8) && (($mes == 10 && $dia >= 15) || ($mes == 11 && $dia <= 15))) {
-            $selectionCriteria = 8;
+        if (in_array($critClassif, [22]) && (new DatePeriod(15, 10, 15, 11, $year))->inPeriod($date)) {
+            return 'C4';
         }
-
         /*
          * Citas de fenología
          * De aves vistas en últimas observations tanto en migrantes, como en estivales e invernantes.
          */
-        // C5
-        elseif ((($criteriaClassification == 6 || $criteriaClassification == 7) && ($mes == 11 && $dia <= 15))
-            || (($criteriaClassification == 8) && (($mes == 2 && $dia >= 15) || ($mes == 3 && $dia == 1)))) {
-            $selectionCriteria = 9;
+        if (in_array($critClassif, [20, 21]) && (
+                (new DatePeriod(1, 11, 15, 11, $year))->inPeriod($date)
+            ) || in_array($critClassif, [22]) && (
+                (new DatePeriod(15, 2, 1, 3, $year))->inPeriod($date)
+            )) {
+            return 'C5';
         }
-
         /*
          * Citas de fenología
          * De aves vistas en migración activa o sedimentadas fuera de un hábitat típico.
          */
-        // C6
-        elseif (strpos($observations,'migracion') || strpos($observations,'sedimentacion') || strpos($observations,'activa') || strpos($observations,'migrando')) {
-            $selectionCriteria = 10;
+        if (preg_match('[migracion|sedimentacion|activa|migrando]', $observations)) {
+            return 'C6';
         }
-
         /*
          * Citas de abundancia
          * De concentraciones anormales o sobresalientes de una especie, por el elevado o bajo número de aves.
          */
-        // D1
-        elseif ($amount > 30) {
-            $selectionCriteria = 11;
+        if ($amount > 30) {
+            return 'D1';
         }
-
         /*
          * Citas de reproducción
          * Datos de nidificación de especies abundantes, pero fuera de su hábitat típico.
          */
-        // E2
-        elseif (($criteriaClassification == 9 || $criteriaClassification == 10) && ($reproductionClassification >= 2 && $reproductionClassification <= 10) && $indHabitatAtipico) {
-            $selectionCriteria = 15;
+        if (in_array($critClassif, [30, 40]) && in_array($reprodClassif, $cria) && $indHabitatAtipico) {
+            return 'E2';
         }
-
         /*
          * Citas de comportamiento
          * Extraños o curiosos, de cualquier ave.
          */
-        // F1
-        elseif (($criteriaClassification == 9 || $criteriaClassification == 10) && $indComportamientoCurioso) {
-            $selectionCriteria = 17;
+        if (in_array($critClassif, [30, 40]) && $indComportamientoCurioso) {
+            return 'F1';
         }
-
         /*
          * Citas de conservación
          * Citas de aves encontradas muertas o heridas, por cualquier causa.
          */
-        // G2
-        elseif ($indHerido) {
-            $selectionCriteria = 20;
+        if ($indHerido || preg_match('[muerto|herido|accidentado|muerta|herida|accidentada]', $observations)) {
+            return 'G2';
         }
-
         /*
          * Citas de abundancia
          * De conteos en censos y jornadas de anillamiento.
          */
-        // D2
-        elseif (strpos($observations,'censo') || strpos($observations,'anillamiento') || strpos($observations,'anillado') || strpos($observations,'anillada')) {
-            $selectionCriteria = 12;
+        if (preg_match('[censo|anillamiento|anillado|anillada]', $observations)) {
+            return 'D2';
         }
-
         /*
          * Citas de distribución
          * En localidades o zonas de la geografía provincial poco prospectadas o con escasos datos.
          */
-        // A2
-        elseif ($numeroCitasPorLugar > 50) {
-            $selectionCriteria = 2;
+        if ($numeroCitasPorLugar > 50) {
+            return 'A2';
         }
 
-        return $selectionCriteria;
+        return '';
     }
 
     /**
