@@ -11,6 +11,15 @@ use Doctrine\Common\Persistence\ObjectRepository;
 interface EntityRepositoryInterface extends ObjectRepository
 {
     /**
+     * Return a count by conditions
+     *
+     * @param array $conditions
+     * @param array $parameters
+     * @return int
+     */
+    public function countBy(array $conditions, array $parameters);
+
+    /**
      * Get an array of fields by conditions
      *
      * @param array $fields
