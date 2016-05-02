@@ -234,6 +234,12 @@ class Cita
     public function __construct()
     {
         $this->observadorSecundario = new ArrayCollection();
+        $this->indRarezaHomologada = 0;
+        $this->indSeleccionada = 0;
+        $this->indActivo = 1;
+        $this->indFoto = 0;
+        $this->indPrivacidad = 1;
+        $this->fechaCreacion = new \DateTime();
     }
 
 
