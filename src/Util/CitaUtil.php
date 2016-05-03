@@ -140,7 +140,7 @@ class CitaUtil
             ) || in_array($critClassif, [20]) && (
                 (new DatePeriod(15, 5, 14, 7, $year))->inPeriod($date)
             ) || in_array($critClassif, [22]) && (
-                (new DatePeriod(1, 3, 14, 10, $year))->inPeriod($date)
+                (new DatePeriod(2, 3, 14, 10, $year))->inPeriod($date)
             )) {
             return 'C1';
         }
@@ -176,7 +176,7 @@ class CitaUtil
          * De aves vistas en últimas observations tanto en migrantes, como en estivales e invernantes.
          */
         if (in_array($critClassif, [20, 21]) && (
-                (new DatePeriod(1, 11, 15, 11, $year))->inPeriod($date)
+                (new DatePeriod(1, 11, 14, 11, $year))->inPeriod($date)
             ) || in_array($critClassif, [22]) && (
                 (new DatePeriod(15, 2, 1, 3, $year))->inPeriod($date)
             )) {
@@ -221,7 +221,7 @@ class CitaUtil
          * Citas de abundancia
          * De conteos en censos y jornadas de anillamiento.
          */
-        if (preg_match('[censo|anillamiento|anillado|anillada]', $observations)) {
+        if (preg_match('[censo|anillamiento|anillado|anillada|anilla]', $observations)) {
             return 'D2';
         }
         /*
