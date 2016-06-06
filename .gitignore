@@ -4,3 +4,7 @@
 .idea
 .env
 composer.lock
+db/migrations/
+db/seeds/
+src/Repository/
+phinx.yml
